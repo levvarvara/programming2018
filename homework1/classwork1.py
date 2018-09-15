@@ -1,23 +1,28 @@
 import random
 import string
-def gener_random_letter():
+def gener_alpha():
     alpha = string.ascii_lowercase
     alpha = list(alpha)
-    letter = random.choice(alpha)
-    return letter  
-
-"""def get_word_hint(d):
-    
-    return word, hint"""
+    return alpha  
     
 def main():
-    let = gener_random_letter()
-    print(let)
+    alpha = gener_alpha()
+    letter = random.choice(alpha)
+    print(letter)
+    index = ord(letter)
     while True:
         user_g = input("Guess the letter:  ")
-        if user_g == let:
+        if user_g == letter:
             print("Correct!")
             break
+        elif user_g in alpha:
+            index_user = ord(user_g)
+            if index_user > index:
+                print("Correct letter is to the left")
+                continue
+            else:
+                print("Correct letter is to the right")
+                continue
         else:
             print("Try again")
             continue
