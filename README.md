@@ -14,4 +14,4 @@
     <td><a href="https://github.com/levvarvara/programming2018/tree/master/homework1">Код</a> </td>
   </tr>
 </table>
-<img src=\"https://pp.userapi.com/c849328/v849328063/7cf80/uJ91Dq5qcko.jpg\" >
+<img src=\"./pic.jpg\" style=\"width: 500px;\" align=\"left\" >
