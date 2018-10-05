@@ -1,0 +1,19 @@
+{
+	"country": ["England", "Ireland"],
+	"authors": [{
+			"first_name": "Джеймс",
+			"last_name": "Джойс",
+			"book": "Улисс"
+		},
+		{
+			"first_name": "Вирджиния",
+			"last_name": "Вулф",
+			"book": "На маяк"
+		},
+		{
+			"first_name": "Терри",
+			"last_name": "Пратчетт",
+			"book": "Цвет волшебства"
+		}
+	]
+}
