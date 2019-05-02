@@ -9,7 +9,9 @@ from pymystem3 import Mystem
 
 
 m = Mystem()
-token = '9c14bf2c9c14bf2c9c14bf2c9b9c7d53db99c149c14bf2cc0dd3953104150c28aee06c0'
+token = '573c94cd573c94cd573c94cd505755783a5573c573c94cd0bf64d17df97ecb0cedb0c68'
+cities = []
+unis = []
 
 
 def to_file(text, file_name):
@@ -29,11 +31,20 @@ def clean(text):
     return text2
 
 
-def draw_graf(x, y, title, x_name, y_name, col):
+def draw_graf_bar(x, y, title, x_name, y_name, col):
     plt.title(title)
     plt.ylabel(y_name)
     plt.xlabel(x_name)
+    plt.xticks(rotation=90)
     plt.bar(x, y, color=col)
+    plt.show()
+
+
+def draw_graf_plot(x, y, title, x_name, y_name, col):
+    plt.title(title)
+    plt.ylabel(y_name)
+    plt.xlabel(x_name)
+    plt.plot(x, y, color=col)
     plt.show()
 
 
@@ -43,7 +54,7 @@ def lemm(text):
 
 
 def user_info(users):
-    info = {}
+    info = []
     for user in users:
         try:
             req = urllib.request.Request(
@@ -61,9 +72,14 @@ def user_info(users):
             # print(data['response'][0]['university_name'])
             city = {'city': data['response'][0]['city']['title']}
             uni = {'uni': data['response'][0]['university_name']}
-            info.update(city)
-            info.update(uni)
+            global cities
+            global unis
+            cities.append(data['response'][0]['city']['title'])
+            unis.append(data['response'][0]['university_name'])
+            info.append(city, uni)
+            print(info)
             return info
+
         except:
             pass
 
@@ -76,7 +92,7 @@ def main():
     comments_d = {}
     owner_id = '-25557243'
     # users = []
-    # получаем тексты постов
+    # получаю тексты постов
     for off in offset:
         req = urllib.request.Request(
             'https://api.vk.com/method/wall.get?owner_id=%s&offset=%s&count=5&v=5.92&access_token=%s' % (owner_id, off, token))
@@ -98,10 +114,10 @@ def main():
             posts_d.update(diction)
             texts.append(text['text'])
 
-            # теперь выкачиваем комментарии к посту
+            # теперь выкачиваю комментарии к посту
             for off2 in offset2:
                 req = urllib.request.Request(
-                    'https://api.vk.com/method/wall.getComments?owner_id=%s&post_id=%s&offset=%s&count=5&v=5.92'
+                    'https://api.vk.com/method/wall.getComments?owner_id=%s&post_id=%s&offset=%s&count=2&v=5.92'
                     '&access_token=%s' % (owner_id, post_id, off2, token))
                 response = urllib.request.urlopen(req)
                 result = response.read().decode("utf-8")
@@ -120,10 +136,16 @@ def main():
                         com_len = {'length': len(comments['response']['items'][i]['text'].split())}
                         us = [user_id['user_id']]
                         info = user_info(us)
-                        diction = {comments['response']['items'][i]['id']: [com_text, id_post, com_len, info]}
-                        comments_d.update(diction)
+                        print(info)
+                        if info is not None:
+                            diction = {comments['response']['items'][i]['id']: [com_text, id_post, com_len, info[0],
+                                                                                info[1]]}
+                            comments_d.update(diction)
+
     # print(posts_d)
     # print(comments_d)
+    print(cities)
+    print(unis)
 
     ave = 0
     counter = 0
@@ -143,8 +165,8 @@ def main():
         j = {key: graf1[key]}
         graf1_sorted.update(j)
     # print(graf1_sorted)
-    draw_graf(graf1_sorted.values(), graf1_sorted.keys(), 'средняя длина комментария в зависимости от длины поста',
-              "Средняя длина комментария", "Длина поста", "g")
+    draw_graf_bar(graf1_sorted.values(), graf1_sorted.keys(), 'средняя длина комментария в зависимости от длины поста',
+                  "средняя длина комментария", "Длина поста", "g")
 
     graf2 = {}
     ave_week = 0
@@ -156,8 +178,8 @@ def main():
         dict1 = {day: ave_week/counter}
         graf2.update(dict1)
 
-    draw_graf(graf2.keys(), graf2.values(), "средняя длина поста в зависимости от дня недели", "день недели",
-              "средняя длина поста", "y")
+    draw_graf_plot(graf2.keys(), graf2.values(), "средняя длина поста в зависимости от дня недели", "день недели",
+                   "средняя длина поста", "y")
 
     graf3 = {}
     ave_hour = 0
@@ -169,8 +191,8 @@ def main():
         dict1 = {hour: round(ave_hour/counter)}
         graf3.update(dict1)
     # print(graf3)
-    draw_graf(graf3.keys(), graf3.values(), "средняя длина поста в зависимости от часа публикации", "час",
-              "средняя длина поста", "r")
+    draw_graf_plot(graf3.keys(), graf3.values(), "средняя длина поста в зависимости от часа публикации", "час",
+                   "средняя длина поста", "r")
 
     texts_str = ' '.join(texts).lower()
     # print(texts_str)
@@ -183,14 +205,33 @@ def main():
     nonlem_freq = freq(text_clean.split())
     print("ЧАСТОТНЫЙ СЛОВАРЬ ПО НЕЛЕММАТИЗИРОВАННОМУ КОРПУСУ")
     print(nonlem_freq)
+    draw_graf_bar(nonlem_freq.keys(), nonlem_freq.values(), "частотность без лемматизации", "слова", "частота", "r")
 
     lemm_freq = freq(text_lemm)
-    
-    # убираем пробелы из частотного словаря
+    # убираю пробелы из частотного словаря
     lemm_freq = {i: lemm_freq[i] for i in lemm_freq if i != ' ' and i != '  ' and i != '   ' and i != '    '
                  and i != '      ' and i != '     '}
     print("ЧАСТОТНЫЙ СЛОВАРЬ ПО ЛЕММАТИЗИРОВАННОМУ КОРПУСУ")
     print(lemm_freq)
+    draw_graf_bar(nonlem_freq.keys(), nonlem_freq.values(), "частотность с лемматизацией", "слова", "частота", "m")
+
+    # формирую корпуса с дополнительной информацией в формате json
+    to_file(json.dumps(posts_d), "корпус постов.txt")
+    to_file(json.dumps(comments_d), "корпус комментариев.txt")
+    print(comments_d)
+    """graf4 = {}
+    ave_city = 0
+    for city in cities:
+        for key, value in comments_d.items():
+            if 'city' in value[3]:
+                if city == value[3]['city']:
+                    counter = + 1
+                    ave_city = + value[2]['length']
+        dict1 = {city: ave_city / counter}
+        graf4.update(dict1)
+
+    draw_graf_plot(graf4.keys(), graf4.values(), "средняя длина комментария в зависимости от города", "город",
+                   "средняя длина", "k")"""
 
 
 if __name__ == '__main__':
