@@ -10,11 +10,16 @@ from string import punctuation
 
 
 m = Mystem()
-token = '2578038a2578038a2578038a3d2511ef7d225782578038a79bf393a4a54468e4eb649d2'
+token = '9c14bf2c9c14bf2c9c14bf2c9b9c7d53db99c149c14bf2cc0dd3953104150c28aee06c0'
+
+
+def to_file(text):
+    with open(r"C:\Users\Николас Алва\Desktop\vkapi_practice\row_text.txt", "w", encoding="utf-8") as f:
+        f.write(text)
 
 
 def clean(text):
-    text2 = re.sub("[^а-яА-Я ]", "", text)
+    text2 = re.sub("[^а-яА-Я ]", " ", text)
     return text2
 
 
@@ -25,9 +30,11 @@ def draw_graf(x, y, title, x_name, y_name, col):
     plt.bar(x, y, color=col)
     plt.show()
 
+
 def lemm(text):
     text = m.lemmatize(text)
     return text
+
 
 def user_info(users):
     info = {}
@@ -66,7 +73,7 @@ def main():
     # получаем тексты постов
     for off in offset:
         req = urllib.request.Request(
-            'https://api.vk.com/method/wall.get?owner_id=%s&offset=%s&count=100&v=5.92&access_token=%s' % (owner_id, off, token))
+            'https://api.vk.com/method/wall.get?owner_id=%s&offset=%s&count=5&v=5.92&access_token=%s' % (owner_id, off, token))
         response = urllib.request.urlopen(req)
         result = response.read().decode("utf-8")
         posts = json.loads(result)
@@ -88,7 +95,7 @@ def main():
             # теперь выкачиваем комментарии к посту
             for off2 in offset2:
                 req = urllib.request.Request(
-                    'https://api.vk.com/method/wall.getComments?owner_id=%s&post_id=%s&offset=%s&count=100&v=5.92'
+                    'https://api.vk.com/method/wall.getComments?owner_id=%s&post_id=%s&offset=%s&count=5&v=5.92'
                     '&access_token=%s' % (owner_id, post_id, off2, token))
                 response = urllib.request.urlopen(req)
                 result = response.read().decode("utf-8")
@@ -134,6 +141,7 @@ def main():
               "Средняя длина комментария", "Длина поста", "g")
 
     graf2 = {}
+    ave_week = 0
     for day in calendar.day_name:
         for key, value in posts_d.items():
             if day == value[1]['week']:
@@ -157,10 +165,13 @@ def main():
     draw_graf(graf3.keys(), graf3.values(), "средняя длина поста в зависимости от часа публикации", "час",
               "средняя длина поста", "r")
 
-    text_clean = clean(text)
+    texts_str = ' '.join(texts).lower()
+    # print(texts_str)
+    text_clean = clean(texts_str)
     print(text_clean)
-    lem_text = lemm(text_clean)
-    print(lem_text)
+    to_file(text_clean)
+    # lem_text = lemm(text_clean)
+    # print(lem_text)
 
 
 if __name__ == '__main__':
