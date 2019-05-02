@@ -1,21 +1,27 @@
 import re
 import calendar
+import collections
 from datetime import datetime
-# from datetime import date
 import urllib.request
 import matplotlib.pyplot as plt
 import json
 from pymystem3 import Mystem
-from string import punctuation
 
 
 m = Mystem()
 token = '9c14bf2c9c14bf2c9c14bf2c9b9c7d53db99c149c14bf2cc0dd3953104150c28aee06c0'
 
 
-def to_file(text):
-    with open(r"C:\Users\Николас Алва\Desktop\vkapi_practice\row_text.txt", "w", encoding="utf-8") as f:
+def to_file(text, file_name):
+    with open(r"C:\Users\Николас Алва\Desktop\vkapi_practice\%s" % file_name, "w", encoding="utf-8") as f:
         f.write(text)
+
+
+def freq(text):
+    frq = collections.Counter(text).most_common(20)
+    frq = dict(frq)
+    frq = {c: frq[c] for c in frq if frq[c] > 0}
+    return frq
 
 
 def clean(text):
@@ -116,8 +122,8 @@ def main():
                         info = user_info(us)
                         diction = {comments['response']['items'][i]['id']: [com_text, id_post, com_len, info]}
                         comments_d.update(diction)
-    print(posts_d)
-    print(comments_d)
+    # print(posts_d)
+    # print(comments_d)
 
     ave = 0
     counter = 0
@@ -136,7 +142,7 @@ def main():
     for key in sorted(graf1):
         j = {key: graf1[key]}
         graf1_sorted.update(j)
-    print(graf1_sorted)
+    # print(graf1_sorted)
     draw_graf(graf1_sorted.values(), graf1_sorted.keys(), 'средняя длина комментария в зависимости от длины поста',
               "Средняя длина комментария", "Длина поста", "g")
 
@@ -154,6 +160,7 @@ def main():
               "средняя длина поста", "y")
 
     graf3 = {}
+    ave_hour = 0
     for hour in range(24):
         for key, value in posts_d.items():
             if hour == value[2]['hour']:
@@ -161,17 +168,29 @@ def main():
                 ave_hour = + value[3]['length']
         dict1 = {hour: round(ave_hour/counter)}
         graf3.update(dict1)
-    print(graf3)
+    # print(graf3)
     draw_graf(graf3.keys(), graf3.values(), "средняя длина поста в зависимости от часа публикации", "час",
               "средняя длина поста", "r")
 
     texts_str = ' '.join(texts).lower()
     # print(texts_str)
     text_clean = clean(texts_str)
-    print(text_clean)
-    to_file(text_clean)
-    # lem_text = lemm(text_clean)
-    # print(lem_text)
+    # print(text_clean)
+    to_file(text_clean, 'row_text.txt')
+    text_lemm = lemm(text_clean)
+    to_file(''.join(text_lemm), 'text_lemmatized.txt')
+
+    nonlem_freq = freq(text_clean.split())
+    print("ЧАСТОТНЫЙ СЛОВАРЬ ПО НЕЛЕММАТИЗИРОВАННОМУ КОРПУСУ")
+    print(nonlem_freq)
+
+    lemm_freq = freq(text_lemm)
+    
+    # убираем пробелы из частотного словаря
+    lemm_freq = {i: lemm_freq[i] for i in lemm_freq if i != ' ' and i != '  ' and i != '   ' and i != '    '
+                 and i != '      ' and i != '     '}
+    print("ЧАСТОТНЫЙ СЛОВАРЬ ПО ЛЕММАТИЗИРОВАННОМУ КОРПУСУ")
+    print(lemm_freq)
 
 
 if __name__ == '__main__':
