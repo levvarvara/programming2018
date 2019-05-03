@@ -20,7 +20,7 @@
   </tr>
   <tr>
     <td>6. <br> </td>
-    <td>VkApi <br> </td>
+    <td>Vk Api <br> </td>
     <td><a href="https://github.com/levvarvara/programming2018/tree/master/homework6">Код</a> </td>
   </tr>
 </table>
