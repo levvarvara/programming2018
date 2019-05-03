@@ -18,5 +18,10 @@
     <td>Гитхаб и ко <br> </td>
     <td><a href="https://github.com/levvarvara/programming2018/tree/master/homework2">Код</a> </td>
   </tr>
+  <tr>
+    <td>6. <br> </td>
+    <td>VkApi <br> </td>
+    <td><a href="https://github.com/levvarvara/programming2018/tree/master/homework6">Код</a> </td>
+  </tr>
 </table>
 <img src="./pic.jpg" width="300" height="170">
