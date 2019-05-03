@@ -6,6 +6,7 @@ import urllib.request
 import matplotlib.pyplot as plt
 import json
 from pymystem3 import Mystem
+from matplotlib import style
 
 
 m = Mystem()
@@ -32,20 +33,24 @@ def clean(text):
 
 
 def draw_graf_bar(x, y, title, x_name, y_name, col):
+    style.use('ggplot')
     plt.title(title)
     plt.ylabel(y_name)
     plt.xlabel(x_name)
     plt.xticks(rotation=90)
     plt.bar(x, y, color=col)
     plt.show()
+    # plt.savefig('{}.png'.format(title), dpi=100)
 
 
 def draw_graf_plot(x, y, title, x_name, y_name, col):
+    style.use('ggplot')
     plt.title(title)
     plt.ylabel(y_name)
     plt.xlabel(x_name)
     plt.plot(x, y, color=col)
     plt.show()
+    # plt.savefig('{}.png'.format(title), dpi=100)
 
 
 def lemm(text):
@@ -96,7 +101,7 @@ def main():
     # получаю тексты постов
     for off in offset:
         req = urllib.request.Request(
-            'https://api.vk.com/method/wall.get?owner_id=%s&offset=%s&count=5&v=5.92&access_token=%s' % (owner_id, off,
+            'https://api.vk.com/method/wall.get?owner_id=%s&offset=%s&count=100&v=5.92&access_token=%s' % (owner_id, off,
                                                                                                          token))
         response = urllib.request.urlopen(req)
         result = response.read().decode("utf-8")
@@ -119,7 +124,7 @@ def main():
             # теперь выкачиваю комментарии к посту
             for off2 in offset2:
                 req = urllib.request.Request(
-                    'https://api.vk.com/method/wall.getComments?owner_id=%s&post_id=%s&offset=%s&count=10&v=5.92'
+                    'https://api.vk.com/method/wall.getComments?owner_id=%s&post_id=%s&offset=%s&count=100&v=5.92'
                     '&access_token=%s' % (owner_id, post_id, off2, token))
                 response = urllib.request.urlopen(req)
                 result = response.read().decode("utf-8")
@@ -215,7 +220,7 @@ def main():
                  and i != '      ' and i != '     ' and i != '          '}
     print("ЧАСТОТНЫЙ СЛОВАРЬ ПО ЛЕММАТИЗИРОВАННОМУ КОРПУСУ")
     print(lemm_freq)
-    draw_graf_bar(nonlem_freq.keys(), nonlem_freq.values(), "частотность с лемматизацией", "слова", "частота", "m")
+    draw_graf_bar(lemm_freq.keys(), lemm_freq.values(), "частотность с лемматизацией", "слова", "частота", "m")
 
     # формирую корпуса с дополнительной информацией в формате json
     to_file(json.dumps(posts_d), "корпус постов.txt")
