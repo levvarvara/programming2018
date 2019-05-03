@@ -9,7 +9,7 @@ from pymystem3 import Mystem
 
 
 m = Mystem()
-token = '573c94cd573c94cd573c94cd505755783a5573c573c94cd0bf64d17df97ecb0cedb0c68'
+token = 'd63b2b0ad63b2b0ad63b2b0a71d652c7fddd63bd63b2b0a8af7647e20f6450ba2c6234a'
 cities = []
 unis = []
 
@@ -54,7 +54,7 @@ def lemm(text):
 
 
 def user_info(users):
-    info = []
+    info = {'city': '', 'uni': ''}
     for user in users:
         try:
             req = urllib.request.Request(
@@ -76,12 +76,12 @@ def user_info(users):
             global unis
             cities.append(data['response'][0]['city']['title'])
             unis.append(data['response'][0]['university_name'])
-            info.append(city, uni)
-            print(info)
-            return info
-
+            info.update(city)
+            info.update(uni)
+            # print(info)
         except:
             pass
+    return info
 
 
 def main():
@@ -91,11 +91,13 @@ def main():
     posts_d = {}
     comments_d = {}
     owner_id = '-25557243'
+    # lens = []
     # users = []
     # получаю тексты постов
     for off in offset:
         req = urllib.request.Request(
-            'https://api.vk.com/method/wall.get?owner_id=%s&offset=%s&count=5&v=5.92&access_token=%s' % (owner_id, off, token))
+            'https://api.vk.com/method/wall.get?owner_id=%s&offset=%s&count=5&v=5.92&access_token=%s' % (owner_id, off,
+                                                                                                         token))
         response = urllib.request.urlopen(req)
         result = response.read().decode("utf-8")
         posts = json.loads(result)
@@ -117,7 +119,7 @@ def main():
             # теперь выкачиваю комментарии к посту
             for off2 in offset2:
                 req = urllib.request.Request(
-                    'https://api.vk.com/method/wall.getComments?owner_id=%s&post_id=%s&offset=%s&count=2&v=5.92'
+                    'https://api.vk.com/method/wall.getComments?owner_id=%s&post_id=%s&offset=%s&count=10&v=5.92'
                     '&access_token=%s' % (owner_id, post_id, off2, token))
                 response = urllib.request.urlopen(req)
                 result = response.read().decode("utf-8")
@@ -136,16 +138,16 @@ def main():
                         com_len = {'length': len(comments['response']['items'][i]['text'].split())}
                         us = [user_id['user_id']]
                         info = user_info(us)
-                        print(info)
+                        # print(info)
                         if info is not None:
-                            diction = {comments['response']['items'][i]['id']: [com_text, id_post, com_len, info[0],
-                                                                                info[1]]}
+                            diction = {comments['response']['items'][i]['id']: [com_text, id_post, com_len,
+                                                                                info]}
                             comments_d.update(diction)
 
     # print(posts_d)
     # print(comments_d)
-    print(cities)
-    print(unis)
+    # print(cities)
+    # print(unis)
 
     ave = 0
     counter = 0
@@ -164,7 +166,7 @@ def main():
     for key in sorted(graf1):
         j = {key: graf1[key]}
         graf1_sorted.update(j)
-    # print(graf1_sorted)
+
     draw_graf_bar(graf1_sorted.values(), graf1_sorted.keys(), 'средняя длина комментария в зависимости от длины поста',
                   "средняя длина комментария", "Длина поста", "g")
 
@@ -210,7 +212,7 @@ def main():
     lemm_freq = freq(text_lemm)
     # убираю пробелы из частотного словаря
     lemm_freq = {i: lemm_freq[i] for i in lemm_freq if i != ' ' and i != '  ' and i != '   ' and i != '    '
-                 and i != '      ' and i != '     '}
+                 and i != '      ' and i != '     ' and i != '          '}
     print("ЧАСТОТНЫЙ СЛОВАРЬ ПО ЛЕММАТИЗИРОВАННОМУ КОРПУСУ")
     print(lemm_freq)
     draw_graf_bar(nonlem_freq.keys(), nonlem_freq.values(), "частотность с лемматизацией", "слова", "частота", "m")
@@ -218,8 +220,9 @@ def main():
     # формирую корпуса с дополнительной информацией в формате json
     to_file(json.dumps(posts_d), "корпус постов.txt")
     to_file(json.dumps(comments_d), "корпус комментариев.txt")
-    print(comments_d)
-    """graf4 = {}
+    # print(comments_d)
+
+    graf4 = {}
     ave_city = 0
     for city in cities:
         for key, value in comments_d.items():
@@ -227,12 +230,28 @@ def main():
                 if city == value[3]['city']:
                     counter = + 1
                     ave_city = + value[2]['length']
-        dict1 = {city: ave_city / counter}
+        dict1 = {city: round(ave_city / counter)}
         graf4.update(dict1)
 
-    draw_graf_plot(graf4.keys(), graf4.values(), "средняя длина комментария в зависимости от города", "город",
-                   "средняя длина", "k")"""
+    draw_graf_bar(graf4.keys(), graf4.values(), "средняя длина комментария в зависимости от города", "город",
+                   "средняя длина", "k")
+
+    # print(comments_d)
+    graf5 = {}
+    ave_uni = 0
+    for uni in unis:
+        for key, value in comments_d.items():
+            if 'uni' in value[3]:
+                if uni == value[3]['uni']:
+                    counter = + 1
+                    ave_uni = + value[2]['length']
+        dict1 = {uni: round(ave_uni / counter)}
+        graf5.update(dict1)
+    # print(graf5)
+    draw_graf_bar(graf5.keys(), graf5.values(), "средняя длина комментария в зависимости от университета", "университет",
+                  "средняя длина", "y")
 
 
 if __name__ == '__main__':
     main()
+
