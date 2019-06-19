@@ -23,5 +23,10 @@
     <td>Vk Api <br> </td>
     <td><a href="https://github.com/levvarvara/programming2018/tree/master/homework6">Код</a> </td>
   </tr>
+  <tr>
+    <td>7. <br> </td>
+    <td>Итоговый проект <br> </td>
+    <td><a href="https://github.com/levvarvara/programming2018/tree/master/FinalProject">Код</a> </td>
+  </tr>
 </table>
 <img src="./pic.jpg" width="300" height="170">
